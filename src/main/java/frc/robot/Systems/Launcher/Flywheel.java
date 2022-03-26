@@ -14,7 +14,13 @@ public class Flywheel {
 	public static final int kTimeoutMs = 30;
 	public final static Gains kGains_Velocit = new Gains( 0.1, 0.001, 5, 1023.0/20660.0,  300,  1.00);
 
-    public static void init() {
+	public static void init() {
+		flyWheel = new TalonFX(7);
+
+		flyWheel.configFactoryDefault();
+	}
+
+    public static void initPID() {
 
 		  // rpm thing
 		flyWheel = new TalonFX(7);
@@ -40,8 +46,13 @@ public class Flywheel {
 		flyWheel.config_kD(kPIDLoopIdx, kGains_Velocit.kD, kTimeoutMs);
     }
 
-	public static void velocity(double velocity){
-		System.out.println(" got here "  + velocity);
+	public static void velocityPID(double velocity){
+		System.out.println(" got here "  + Limelight.mpsToRpm(velocity) / 60 / 100);
         flyWheel.set(ControlMode.Velocity, Limelight.mpsToRpm(velocity) / 60 / 100);
     }
+
+	public static void velocity(double velocity) {
+		System.out.println(" got here "  + velocity);
+		flyWheel.set(ControlMode.PercentOutput, Limelight.mpsToRpm(velocity)/6830);
+	}
 }

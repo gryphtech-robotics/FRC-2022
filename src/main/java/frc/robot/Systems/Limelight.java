@@ -54,11 +54,11 @@ public class Limelight {
         }
     }
 
-    public static void distance() { 
+    public static double distance() { 
         double targetOffsetAngle_Vertical = ty.getDouble(0.0);
 
         // how many degrees back is your limelight rotated from perfectly vertical?
-        double limelightMountAngleDegrees = 44;
+        double limelightMountAngleDegrees = 30;
 
         // distance from the center of the Limelight lens to the floor
         double cameraHeight = 25; 
@@ -73,6 +73,9 @@ public class Limelight {
         //calculate distance
         distanceFromLimelightToGoalInches = (targetHeight - cameraHeight)/Math.tan(angleToGoalRadians);
         //only get distance when it can see the target
+        
+        return distanceFromLimelightToGoalInches;
+    
     }
 
     public static double rpmToMps(double rpm) {
@@ -109,11 +112,11 @@ public class Limelight {
 	 */
 	public static double setEntryVelocity(double distance) { 
 		double meters = distance * 0.0254;
-		double angle = 45;
+		double angle = 34;
 
 		double numerator = 32.18504 * Math.pow(meters, 2);
         // change 110 back to 98 if problem
-		double denominator = 2 * (110 - Math.tan(60) * meters) * Math.pow(Math.cos(angle), 2);
+		double denominator = 2 * (130 - Math.tan(60) * meters) * Math.pow(Math.cos(angle), 2);
 
 		return Math.sqrt(numerator/denominator);
 	}

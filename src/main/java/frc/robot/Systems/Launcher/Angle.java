@@ -19,13 +19,15 @@ public class Angle {
     public static double setTime;
     public static double speed = 0.25;
     public static int anglePercent;
-    private static final SparkMaxAlternateEncoder.Type kAltEncType = SparkMaxAlternateEncoder.Type.kQuadrature;
-    private static final int kCPR = 8192;
-    private static RelativeEncoder angle_alternateEncoder;
+//    private static final SparkMaxAlternateEncoder.Type kAltEncType = SparkMaxAlternateEncoder.Type.kQuadrature;
+//    private static final int kCPR = 8192;
+//    private static RelativeEncoder angle_alternateEncoder;
     public static double thrusterSpeed;
     public static double overShoot;
     public static double underShoot;
     public static DigitalInput limitSwitch;
+
+    public static boolean angleZeroed = true;
    
 
     private static SparkMaxPIDController angle_pidController;
@@ -33,19 +35,19 @@ public class Angle {
 
     public static void init(){
         angleMaker = new CANSparkMax(5, MotorType.kBrushless);
-        //angleMaker.restoreFactoryDefaults();
-        angle_alternateEncoder = angleMaker.getAlternateEncoder(kAltEncType, kCPR);
+        angleMaker.restoreFactoryDefaults();
+//        angle_alternateEncoder = angleMaker.getAlternateEncoder(kAltEncType, kCPR);
         angle_pidController = angleMaker.getPIDController();
         limitSwitch = new DigitalInput(0);
-
         zeroLimitSwitch();
+
         
         //PID for the angle of the launcher below 
         // PID coefficients
         
-        kP = 0.1; 
-        kI = 1e-4;
-        kD = 1; 
+        kP = 5e-5; 
+        kI = 1e-6;
+        kD = 0; 
         kIz = 0; 
         kFF = 0; 
         kMaxOutput = 1; 
@@ -93,25 +95,37 @@ public class Angle {
             angle_pidController.setOutputRange(min, max); 
             kMinOutput = min; kMaxOutput = max;
         }
+
+        
+
     }
 
 
     public static void setAngle(Double rotations) {
     
-        //angle_pidController.setReference(rotations, CANSparkMax.ControlType.kPosition);
+        angle_pidController.setReference(rotations, CANSparkMax.ControlType.kPosition);
 
         SmartDashboard.putNumber("SetPoint", rotations);
-        SmartDashboard.putNumber("ProcessVariable", angle_alternateEncoder.getPosition());
+//        SmartDashboard.putNumber("ProcessVariable", angle_alternateEncoder.getPosition());
 
     }
     
-    public static void zeroLimitSwitch(){
-        System.out.println("we get here");
-        angleMaker.set(-.5);
-        if (limitSwitch.get()){
-            angleMaker.set(0.0);
-            angleMaker.restoreFactoryDefaults();
+    public static void checkLimitSwitch(){
+        if(!angleZeroed){
+            //System.out.println(angleMaker.getEncoder().getPosition());
+            
+            if (limitSwitch.get()){
+                angleMaker.set(0.0);
+                angleMaker.restoreFactoryDefaults();
+                angleMaker.getEncoder().setPosition(0);
+                angleZeroed = true;
+            }else{
+                angleMaker.set(-.1);
+            }
         }
+    }
+    public static void zeroLimitSwitch(){
+        angleZeroed = false;
     }
 }
 

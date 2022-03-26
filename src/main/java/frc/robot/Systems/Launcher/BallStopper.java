@@ -13,7 +13,7 @@ public class BallStopper{
         BallStopper.solenoid.set(Value.kReverse);
         Timer.delay(0.5);
         BallStopper.solenoid.set(Value.kOff);
-        Timer.delay(1);
+        Timer.delay(1.5);
         BallStopper.solenoid.set(Value.kForward);
         Timer.delay(0.5);
         BallStopper.solenoid.set(Value.kOff);

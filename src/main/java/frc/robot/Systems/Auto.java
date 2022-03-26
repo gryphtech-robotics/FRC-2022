@@ -27,7 +27,7 @@ public class Auto {
         Drive.rDrive0.set(-0.5);
         Timer.delay(3);
         Drive.stop();
-        while(!Limelight.limeTarget){
+        if(!Limelight.limeTarget){
             Drive.goLoR((float)Limelight.tx.getDouble(0.0));
         }
         double dist = Limelight.distanceFromLimelightToGoalInches;
@@ -35,16 +35,6 @@ public class Auto {
         Flywheel.velocity(v);
         Timer.delay(1);
         BallStopper.launch();
-        //Switch pipeline here
-        Drive.driveRight();
-        Timer.delay(1);
-        Drive.stop();
-        while(!Limelight.limeTarget){
-            Drive.goLoR((float)Limelight.tx.getDouble(0.0));
-        }
-        Drive.stop();
-        while(Limelight.limeTarget){
-            Drive.driveForward();
-        }
+
     }
 }

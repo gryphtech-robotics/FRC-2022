@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 // our stuff
 import edu.wpi.first.wpilibj.Joystick;
@@ -19,11 +20,14 @@ import frc.robot.Systems.Intake;
 import frc.robot.Systems.Limelight;
 import frc.robot.Systems.Launcher.Flywheel;
 import frc.robot.Systems.Launcher.BallStopper;
+import frc.robot.Systems.Launcher.Angle;
 
 public class Robot extends TimedRobot {
 
     // Initialize Joysticks
     public Joystick driverController;
+    public TalonFX t;
+    public boolean toggle = false;
 
     float tx;
 
@@ -39,6 +43,8 @@ public class Robot extends TimedRobot {
         Limelight.init();
         // Drive
         Drive.init(driverController);
+        //angle
+        //Angle.init();
 
         tx = (float) Limelight.tx.getDouble(0.0);
     }
@@ -55,25 +61,16 @@ public class Robot extends TimedRobot {
 
         // Intake
         if (driverController.getRawButton(1)) {
-            Intake.set(0.5);
-        } else if (driverController.getRawButton(1) && driverController.getRawButton(2)) {
-            Intake.set(-0.5);
+            Intake.set(0.66);
+        } else if (driverController.getRawButton(2) && driverController.getRawButton(1)) {
+            Intake.set(-0.66);
         } else {
             Intake.set(0.0);
         }
 
-        /*if (driverController.getRawButton(3)) {
-            // doesnt actually set reference right now just logs shit
-            Angle.setAngle(driverController.getRawAxis(3));
-        }*/
+        if(driverController.getRawButton(5)) {
+            Flywheel.flyWheel.set(ControlMode.PercentOutput, driverController.getRawAxis(3));
 
-        if (Limelight.limeTarget && driverController.getRawButton(5)) {
-            double dist = Limelight.distanceFromLimelightToGoalInches;
-            double v = Limelight.setEntryVelocity(dist);
-
-            Flywheel.velocity(v);
-            //Flywheel.flyWheel.set(ControlMode.PercentOutput, .25);
-            SmartDashboard.putNumber("Velocity", v);
         } else {
             Flywheel.flyWheel.set(ControlMode.PercentOutput, 0);
         }
@@ -98,5 +95,30 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousPeriodic() {
         Auto.run();
+    }
+
+    @Override
+    public void testInit() {
+        Limelight.init();
+
+        driverController = new Joystick(0);
+
+        t = new TalonFX(7);
+  
+        t.configFactoryDefault();
+    }
+
+    @Override
+    public void testPeriodic() {
+        double p = ((-driverController.getRawAxis(3))+1)/2;
+
+        t.set(ControlMode.PercentOutput, p);
+    
+        SmartDashboard.putNumber("Motor", p);
+        SmartDashboard.putNumber("Dist", Limelight.distance());
+    
+        if (driverController.getRawButton(6)) {
+            BallStopper.launch();
+        }
     }
 }
