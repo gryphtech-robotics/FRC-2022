@@ -20,12 +20,14 @@ import frc.robot.Systems.Intake;
 import frc.robot.Systems.Limelight;
 import frc.robot.Systems.Launcher.Flywheel;
 import frc.robot.Systems.Launcher.BallStopper;
-import frc.robot.Systems.Launcher.Angle;
+//import frc.robot.Systems.Launcher.Angle;
 
 public class Robot extends TimedRobot {
 
     // Initialize Joysticks
     public Joystick driverController;
+    public Joystick systemsController; 
+
     public TalonFX t;
     public boolean toggle = false;
 
@@ -35,6 +37,7 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         // Joysticks
         driverController = new Joystick(0);
+        systemsController = new Joystick(1);
         // Flywheel
         Flywheel.init();
         // Intake
@@ -60,29 +63,27 @@ public class Robot extends TimedRobot {
         Drive.drive();
 
         // Intake
-        if (driverController.getRawButton(1)) {
+        if (systemsController.getRawButton(1)) {
             Intake.set(0.66);
-        } else if (driverController.getRawButton(2) && driverController.getRawButton(1)) {
-            Intake.set(-0.66);
         } else {
             Intake.set(0.0);
         }
 
-        if(driverController.getRawButton(5)) {
-            Flywheel.flyWheel.set(ControlMode.PercentOutput, driverController.getRawAxis(3));
+        if(systemsController.getRawButton(5)) {
+            Flywheel.flyWheel.set(ControlMode.PercentOutput, systemsController.getRawAxis(3));
 
         } else {
             Flywheel.flyWheel.set(ControlMode.PercentOutput, 0);
         }
 
         // penumatics
-        if (driverController.getRawButton(6)) {
+        if (systemsController.getRawButton(6)) {
             BallStopper.launch();
         }
         // Limelight Lock-on
-        if (driverController.getRawButton(4)) {
+        if (systemsController.getRawButton(4)) {
             Drive.goLoR(tx);
-        } else if (driverController.getRawButton(4) && Limelight.limeX == 0.0) {
+        } else if (systemsController.getRawButton(4) && Limelight.limeX == 0.0) {
             Drive.stop();
         }
     }
