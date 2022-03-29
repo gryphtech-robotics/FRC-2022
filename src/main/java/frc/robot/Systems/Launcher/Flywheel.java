@@ -1,58 +1,47 @@
 package frc.robot.Systems.Launcher;
 
+import com.revrobotics.*;
+import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 import frc.robot.Systems.Limelight;
-import frc.robot.Utility.Gains;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 
 public class Flywheel {
-    public static TalonFX flyWheel;
+    public static CANSparkMax flyWheel;
 
-	public static final int kSlotIdx = 0;
-	public static final int kPIDLoopIdx = 0;
-	public static final int kTimeoutMs = 30;
-	public final static Gains kGains_Velocit = new Gains( 0.1, 0.001, 5, 1023.0/20660.0,  300,  1.00);
+    public static RelativeEncoder encoder;
+    public static SparkMaxPIDController PID;
 
-	public static void init() {
-		flyWheel = new TalonFX(7);
+    public static double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM;
+    public static double sP;
+    
+    /**
+     * This function initializes the motors used to drive the robot.
+     * To do this it assigns the CANSparkMax motors to the public variables leftThruster, rightThruster, leftSideWheel, rightSideWheel, and angleSetter.
+     */
+    public static void init () {
+        flyWheel = new CANSparkMax(7, MotorType.kBrushless);
 
-		flyWheel.configFactoryDefault();
-	}
+        flyWheel.restoreFactoryDefaults();
 
-    public static void initPID() {
+        PID = flyWheel.getPIDController();
+        encoder = flyWheel.getEncoder();
 
-		  // rpm thing
-		flyWheel = new TalonFX(7);
+        flyWheel.setOpenLoopRampRate(1);
+        flyWheel.setClosedLoopRampRate(1);
 
-        flyWheel.configFactoryDefault();
-		
-		/* Config neutral deadband to be the smallest possible */
-		flyWheel.configNeutralDeadband(0.001);
+        PID.setFeedbackDevice(encoder);
+        PID.setFF(0.0002);
+        PID.setP(0);
+        
+        sP = 0;
 
-		/* Config sensor used for Primary PID [Velocity] */
-        flyWheel.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, kPIDLoopIdx, kTimeoutMs);
-											
-		/* Config the peak and nominal outputs */
-		flyWheel.configNominalOutputForward(0, kTimeoutMs);
-		flyWheel.configNominalOutputReverse(0, kTimeoutMs);
-		flyWheel.configPeakOutputForward(1, kTimeoutMs);
-		flyWheel.configPeakOutputReverse(-1, kTimeoutMs);
-
-		/* Config the Velocity closed loop gains in slot0 */
-		flyWheel.config_kF(kPIDLoopIdx, kGains_Velocit.kF, kTimeoutMs);
-		flyWheel.config_kP(kPIDLoopIdx, kGains_Velocit.kP, kTimeoutMs);
-		flyWheel.config_kI(kPIDLoopIdx, kGains_Velocit.kI, kTimeoutMs);
-		flyWheel.config_kD(kPIDLoopIdx, kGains_Velocit.kD, kTimeoutMs);
     }
 
-	public static void velocityPID(double velocity){
-		System.out.println(" got here "  + Limelight.mpsToRpm(velocity) / 60 / 100);
-        flyWheel.set(ControlMode.Velocity, Limelight.mpsToRpm(velocity) / 60 / 100);
+    /**
+     * This function will simply work.
+     */
+    public static void velocity (double distance) {      
+		  PID.setReference(Limelight.mpsToRpm(Limelight.variableEntryVelocity(distance, 22)), ControlType.kVelocity);
     }
-
-	public static void velocity(double velocity) {
-		System.out.println(" got here "  + velocity);
-		flyWheel.set(ControlMode.PercentOutput, Limelight.mpsToRpm(velocity)/6830);
-	}
 }

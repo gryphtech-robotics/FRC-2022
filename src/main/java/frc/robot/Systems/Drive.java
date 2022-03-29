@@ -8,10 +8,7 @@ package frc.robot.Systems;
 
 //Driver control
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import com.revrobotics.CANSparkMax;
-
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 public class Drive {
@@ -52,7 +49,7 @@ public class Drive {
     rDrive1.follow(rDrive0);
   }
 
-  public static void drive (){
+  public static void periodic (){
     speed = (1+(-driverController.getRawAxis(3)))/2;
         
     x = driverController.getRawAxis(0);
@@ -71,11 +68,6 @@ public class Drive {
     } else if (tx < 1.0) {
       st_adj = Kp*h_err + minMin;
     }
-
-    SmartDashboard.putNumber("Kp", Kp);
-    SmartDashboard.putNumber("minMin", minMin);
-    SmartDashboard.putNumber("h_err", h_err);
-    SmartDashboard.putNumber("st_adj", st_adj);
 
     rDrive0.set(st_adj);
     lDrive0.set(st_adj);

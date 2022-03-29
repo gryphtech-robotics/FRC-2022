@@ -9,18 +9,14 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
-
 // our stuff
 import edu.wpi.first.wpilibj.Joystick;
-import frc.robot.Systems.Auto;
 import frc.robot.Systems.Drive;
 import frc.robot.Systems.Intake;
 import frc.robot.Systems.Limelight;
 import frc.robot.Systems.Launcher.Flywheel;
 import frc.robot.Systems.Launcher.BallStopper;
-//import frc.robot.Systems.Launcher.Angle;
+import frc.robot.Systems.Launcher.Angle;
 
 public class Robot extends TimedRobot {
 
@@ -28,27 +24,19 @@ public class Robot extends TimedRobot {
     public Joystick driverController;
     public Joystick systemsController; 
 
-    public TalonFX t;
     public boolean toggle = false;
 
     float tx;
 
     @Override
     public void robotInit() {
-        // Joysticks
         driverController = new Joystick(0);
         systemsController = new Joystick(1);
-        // Flywheel
-        Flywheel.init();
-        // Intake
-        Intake.init();
-        // Limelight
-        Limelight.init();
-        // Drive
-        Drive.init(driverController);
-        //angle
-        //Angle.init();
 
+        Flywheel.init();
+  //      Intake.init();
+        Limelight.init();
+        Drive.init(driverController);
         tx = (float) Limelight.tx.getDouble(0.0);
     }
 
@@ -57,69 +45,30 @@ public class Robot extends TimedRobot {
         tx = (float) Limelight.tx.getDouble(0.0);
         SmartDashboard.putNumber("tx", tx);
 
-        // Limelight Periodic Updates
         Limelight.periodic();
-        // Drive
-        Drive.drive();
+
+        Drive.periodic();
 
         // Intake
-        if (systemsController.getRawButton(1)) {
+      /*  if (systemsController.getRawButton(1)) {
             Intake.set(0.66);
-        } else {
-            Intake.set(0.0);
-        }
-
+        } else { Intake.set(0.0); }
+*/
         if(systemsController.getRawButton(5)) {
-            Flywheel.flyWheel.set(ControlMode.PercentOutput, systemsController.getRawAxis(3));
+            Flywheel.velocity(Limelight.distance());
+        } else { Flywheel.flyWheel.stopMotor(); }
 
-        } else {
-            Flywheel.flyWheel.set(ControlMode.PercentOutput, 0);
-        }
 
-        // penumatics
+        // pneumatics
         if (systemsController.getRawButton(6)) {
             BallStopper.launch();
         }
+
         // Limelight Lock-on
         if (systemsController.getRawButton(4)) {
             Drive.goLoR(tx);
         } else if (systemsController.getRawButton(4) && Limelight.limeX == 0.0) {
             Drive.stop();
-        }
-    }
-
-    @Override
-    public void autonomousInit() {
-        Auto.init();
-    }
-
-    @Override
-    public void autonomousPeriodic() {
-        Auto.run();
-    }
-
-    @Override
-    public void testInit() {
-        Limelight.init();
-
-        driverController = new Joystick(0);
-
-        t = new TalonFX(7);
-  
-        t.configFactoryDefault();
-    }
-
-    @Override
-    public void testPeriodic() {
-        double p = ((-driverController.getRawAxis(3))+1)/2;
-
-        t.set(ControlMode.PercentOutput, p);
-    
-        SmartDashboard.putNumber("Motor", p);
-        SmartDashboard.putNumber("Dist", Limelight.distance());
-    
-        if (driverController.getRawButton(6)) {
-            BallStopper.launch();
         }
     }
 }
