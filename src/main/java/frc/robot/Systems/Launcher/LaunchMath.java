@@ -31,6 +31,7 @@ public class LaunchMath {
     }
 
     public static double velocityCoeffecient(double distance) {
+        // change 0.08 if shit's no worky
         return (0.17/58) * distance + 0.667586206897 + 0.08;
     }
 }
