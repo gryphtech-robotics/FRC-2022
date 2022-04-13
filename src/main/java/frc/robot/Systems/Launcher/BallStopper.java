@@ -11,9 +11,8 @@ public class BallStopper{
 
     public static void launch(){
         BallStopper.solenoid.set(Value.kReverse);
-        Timer.delay(0.5);
+        Timer.delay(1);
         BallStopper.solenoid.set(Value.kOff);
-        Timer.delay(1.5);
         BallStopper.solenoid.set(Value.kForward);
         Timer.delay(0.5);
         BallStopper.solenoid.set(Value.kOff);

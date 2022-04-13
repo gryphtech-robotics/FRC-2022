@@ -2,13 +2,12 @@ package frc.robot.Systems.Launcher;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkMaxAlternateEncoder;
 import com.revrobotics.SparkMaxPIDController;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import frc.robot.Systems.Launcher.LaunchMath;
 
 public class Angle {
     
@@ -19,34 +18,27 @@ public class Angle {
     public static double setTime;
     public static double speed = 0.25;
     public static int anglePercent;
-//    private static final SparkMaxAlternateEncoder.Type kAltEncType = SparkMaxAlternateEncoder.Type.kQuadrature;
-//    private static final int kCPR = 8192;
-//    private static RelativeEncoder angle_alternateEncoder;
-    public static double thrusterSpeed;
     public static double overShoot;
     public static double underShoot;
     public static DigitalInput limitSwitch;
 
-    public static boolean angleZeroed = true;
+    public static boolean angleZeroed = false;
+    public static boolean manualAngle = false;
    
-
     private static SparkMaxPIDController angle_pidController;
     public static double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput;
 
     public static void init(){
-        angleMaker = new CANSparkMax(5, MotorType.kBrushless);
+        angleMaker = new CANSparkMax(25, MotorType.kBrushless);
         angleMaker.restoreFactoryDefaults();
-//        angle_alternateEncoder = angleMaker.getAlternateEncoder(kAltEncType, kCPR);
         angle_pidController = angleMaker.getPIDController();
         limitSwitch = new DigitalInput(0);
-        zeroLimitSwitch();
-
         
         //PID for the angle of the launcher below 
         // PID coefficients
         
-        kP = 5e-5; 
-        kI = 1e-6;
+        kP = 0.5; 
+        kI = 0;   //1e-6;
         kD = 0; 
         kIz = 0; 
         kFF = 0; 
@@ -73,7 +65,6 @@ public class Angle {
     }
     
     public static void periodic(){
-    
         //PID for the angle below
         // read PID coefficients from SmartDashboard
         double p = SmartDashboard.getNumber("P Gain", 0);
@@ -93,39 +84,56 @@ public class Angle {
 
         if((max != kMaxOutput) || (min != kMinOutput)) { 
             angle_pidController.setOutputRange(min, max); 
-            kMinOutput = min; kMaxOutput = max;
+            kMinOutput = min;
+            kMaxOutput = max;
         }
-
-        
-
     }
 
 
-    public static void setAngle(Double rotations) {
-    
-        angle_pidController.setReference(rotations, CANSparkMax.ControlType.kPosition);
+    public static void setRotations(double rotations) {
+        if (angleZeroed){
+            angle_pidController.setReference(rotations, CANSparkMax.ControlType.kPosition);
+        }
 
         SmartDashboard.putNumber("SetPoint", rotations);
-//        SmartDashboard.putNumber("ProcessVariable", angle_alternateEncoder.getPosition());
+    }
 
+    public static void setAngle(double angle){
+        if (angleZeroed){
+            angle_pidController.setReference(LaunchMath.angleToRotations(angle), CANSparkMax.ControlType.kPosition);
+        }
+
+        SmartDashboard.putNumber("SetAngle", angle);
     }
     
     public static void checkLimitSwitch(){
         if(!angleZeroed){
-            //System.out.println(angleMaker.getEncoder().getPosition());
-            
             if (limitSwitch.get()){
                 angleMaker.set(0.0);
-                angleMaker.restoreFactoryDefaults();
-                angleMaker.getEncoder().setPosition(0);
+                angleMaker.getEncoder().setPosition(-10);
                 angleZeroed = true;
             }else{
                 angleMaker.set(-.1);
             }
         }
     }
+
     public static void zeroLimitSwitch(){
         angleZeroed = false;
+    }
+
+    public static double checkPosition(){
+        return angleMaker.getEncoder().getPosition();
+    }
+
+    public static void setSpeed(Double speed){
+        if (angleZeroed && manualAngle){
+            angleMaker.set(speed);
+        }
+    }
+
+    public static double getAngle(){
+        return LaunchMath.rotationsToAngle(angleMaker.getEncoder().getPosition());
     }
 }
 

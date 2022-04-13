@@ -7,6 +7,10 @@ import frc.robot.Systems.Launcher.Angle;
 import frc.robot.Systems.Launcher.BallStopper;
 import frc.robot.Systems.Launcher.Flywheel;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
+import frc.robot.Systems.Launcher.LaunchMath;
+
 public class Auto {
     
 
@@ -16,24 +20,23 @@ public class Auto {
         Joystick ignoreMe = new Joystick(0);
         Drive.init(ignoreMe);
         //Limelight
-        Limelight.init();
+        Limelight.init(104);
         //Angle
         Angle.init();
         
     }
 
     public static void run(){
+        Angle.zeroLimitSwitch();
         Drive.lDrive0.set(-0.5);
-        Drive.rDrive0.set(-0.5);
-        Timer.delay(3);
+        Drive.rDrive0.set(0.5);
+        Timer.delay(0.5);
         Drive.stop();
-        if(!Limelight.limeTarget){
-            Drive.goLoR((float)Limelight.tx.getDouble(0.0));
-        }
-        double dist = Limelight.distanceFromLimelightToGoalInches;
-        double v = Limelight.setEntryVelocity(dist);
-        Flywheel.velocity(v);
-        Timer.delay(1);
+
+        Flywheel.rpm(1.5 * (4000 + (SmartDashboard.getNumber("anotherCoefficient", 1) * (-4000 + SmartDashboard.getNumber("Velocity Coefficient", 1.3) * LaunchMath.mpsToRpm(LaunchMath.getVelocity(LaunchMath.inTom(Limelight.distance()), Math.toRadians(Angle.getAngle())))))));
+
+        Timer.delay(5);
+
         BallStopper.launch();
 
     }

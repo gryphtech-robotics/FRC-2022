@@ -34,10 +34,10 @@ public class Drive {
   public static void init(Joystick boystick) {
     driverController = boystick;
     
-    lDrive0 = new CANSparkMax(4, MotorType.kBrushless);
-    rDrive0 = new CANSparkMax(2, MotorType.kBrushless);
-    lDrive1 = new CANSparkMax(3, MotorType.kBrushless);
-    rDrive1 = new CANSparkMax(1, MotorType.kBrushless);
+    lDrive0 = new CANSparkMax(24, MotorType.kBrushless);
+    rDrive0 = new CANSparkMax(22, MotorType.kBrushless);
+    lDrive1 = new CANSparkMax(23, MotorType.kBrushless);
+    rDrive1 = new CANSparkMax(21, MotorType.kBrushless);
 
     // for new robot 1 ld0, 4 rd0, 2 ld1,3rd1
     lDrive0.restoreFactoryDefaults();
@@ -57,6 +57,7 @@ public class Drive {
 
     rDrive0.set((x+y) * speed);
     lDrive0.set((x-y) * speed);
+    
   }
 
   public static void goLoR(float tx){
@@ -76,6 +77,7 @@ public class Drive {
     rDrive0.set(0);
     lDrive0.set(0);
   }
+  
   public static void driveRight(){
     rDrive0.set(0.25);
     lDrive0.set(-0.25);
@@ -89,3 +91,4 @@ public class Drive {
     rDrive0.set(0.4);
   }
 }
+

@@ -4,6 +4,7 @@ import com.revrobotics.*;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Systems.Limelight;
 
 public class Flywheel {
@@ -14,13 +15,10 @@ public class Flywheel {
 
     public static double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM;
     public static double sP;
-    
-    /**
-     * This function initializes the motors used to drive the robot.
-     * To do this it assigns the CANSparkMax motors to the public variables leftThruster, rightThruster, leftSideWheel, rightSideWheel, and angleSetter.
-     */
-    public static void init () {
-        flyWheel = new CANSparkMax(7, MotorType.kBrushless);
+    public static double angle;
+
+    public static void init (double langle) {
+        flyWheel = new CANSparkMax(27, MotorType.kBrushless);
 
         flyWheel.restoreFactoryDefaults();
 
@@ -32,16 +30,16 @@ public class Flywheel {
 
         PID.setFeedbackDevice(encoder);
         PID.setFF(0.0002);
-        PID.setP(0);
+        PID.setP(0.0005);
         
         sP = 0;
 
+        angle = langle;
+
+    }
+    public static void rpm (double rpm){
+        PID.setReference(rpm, ControlType.kVelocity);
+        //System.out.println(encoder.getVelocity());
     }
 
-    /**
-     * This function will simply work.
-     */
-    public static void velocity (double distance) {      
-		  PID.setReference(Limelight.mpsToRpm(Limelight.variableEntryVelocity(distance, 22)), ControlType.kVelocity);
-    }
 }
