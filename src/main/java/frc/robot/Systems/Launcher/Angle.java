@@ -7,8 +7,6 @@ import com.revrobotics.SparkMaxPIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import frc.robot.Systems.Launcher.LaunchMath;
-
 public class Angle {
     
     public static CANSparkMax angleMaker;
@@ -53,7 +51,7 @@ public class Angle {
         angle_pidController.setFF(kFF);
         angle_pidController.setOutputRange(kMinOutput, kMaxOutput);
 
-        // display PID coefficients on SmartDashboard
+        /* display PID coefficients on SmartDashboard
         SmartDashboard.putNumber("P Gain", kP);
         SmartDashboard.putNumber("I Gain", kI);
         SmartDashboard.putNumber("D Gain", kD);
@@ -61,19 +59,19 @@ public class Angle {
         SmartDashboard.putNumber("Feed Forward", kFF);
         SmartDashboard.putNumber("Max Output", kMaxOutput);
         SmartDashboard.putNumber("Min Output", kMinOutput);
-        SmartDashboard.putNumber("Set Rotations", 0);
+        SmartDashboard.putNumber("Set Rotations", 0);*/
     }
     
     public static void periodic(){
         //PID for the angle below
         // read PID coefficients from SmartDashboard
-        double p = SmartDashboard.getNumber("P Gain", 0);
-        double i = SmartDashboard.getNumber("I Gain", 0);
-        double d = SmartDashboard.getNumber("D Gain", 0);
-        double iz = SmartDashboard.getNumber("I Zone", 0);
-        double ff = SmartDashboard.getNumber("Feed Forward", 0);
-        double max = SmartDashboard.getNumber("Max Output", 0);
-        double min = SmartDashboard.getNumber("Min Output", 0);
+        double p = kP; // SmartDashboard.getNumber("P Gain", 0);
+        double i = kI; // SmartDashboard.getNumber("I Gain", 0);
+        double d = kD; // SmartDashboard.getNumber("D Gain", 0);
+        double iz = kIz; // SmartDashboard.getNumber("I Zone", 0);
+        double ff = kFF; //SmartDashboard.getNumber("Feed Forward", 0);
+        double max = kMaxOutput; //SmartDashboard.getNumber("Max Output", 0);
+        double min = kMinOutput; //SmartDashboard.getNumber("Min Output", 0);
 
         // if PID coefficients on SmartDashboard have changed, write new values to controller
         if((p != kP)) { angle_pidController.setP(p); kP = p; }

@@ -17,4 +17,9 @@ public class BallStopper{
         Timer.delay(0.5);
         BallStopper.solenoid.set(Value.kOff);
     }
+
+    public static void autoLaunch() {
+        Timer.delay(2.5);
+        launch();
+    }
 }

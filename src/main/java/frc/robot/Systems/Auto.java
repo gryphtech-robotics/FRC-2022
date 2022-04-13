@@ -1,43 +1,39 @@
 package frc.robot.Systems;
 
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Timer;
 
 import frc.robot.Systems.Launcher.Angle;
 import frc.robot.Systems.Launcher.BallStopper;
 import frc.robot.Systems.Launcher.Flywheel;
-
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import frc.robot.Systems.Launcher.LaunchMath;
 
 public class Auto {
     
 
     public static void init(){
+        Joystick ignoreMe = new Joystick(0); //this is because i wanted to reuse methods and although a joystick is normally required this one is simply ignored because i take direct control of motor outputs
         
-        //Drive       
-        Joystick ignoreMe = new Joystick(0);
         Drive.init(ignoreMe);
         //Limelight
         Limelight.init(104);
         //Angle
         Angle.init();
-        
     }
 
-    public static void run(){
+    public static void periodic(){
+        double velocityCoeffecient = LaunchMath.velocityCoeffecient(Limelight.distanceFromLimelightToGoalInches);
+
         Angle.zeroLimitSwitch();
-        Drive.lDrive0.set(-0.5);
-        Drive.rDrive0.set(0.5);
-        Timer.delay(0.5);
-        Drive.stop();
+        if(Limelight.distanceFromLimelightToGoalInches != 150) {    
+            Drive.lDrive0.set(-0.5);
+            Drive.rDrive0.set(0.5); 
+        } else {
+            Angle.manualAngle = false;
 
-        Flywheel.rpm(1.5 * (4000 + (SmartDashboard.getNumber("anotherCoefficient", 1) * (-4000 + SmartDashboard.getNumber("Velocity Coefficient", 1.3) * LaunchMath.mpsToRpm(LaunchMath.getVelocity(LaunchMath.inTom(Limelight.distance()), Math.toRadians(Angle.getAngle())))))));
-
-        Timer.delay(5);
-
-        BallStopper.launch();
-
+            Drive.stop();
+            Angle.setRotations(LaunchMath.angleToRotations(LaunchMath.Angle(Limelight.distance())));
+            Flywheel.rpm(velocityCoeffecient * LaunchMath.mpsToRpm(LaunchMath.getVelocity(LaunchMath.inTom(Limelight.distance()), Math.toRadians(Angle.getAngle()))));
+            BallStopper.autoLaunch();
+        }
     }
 }

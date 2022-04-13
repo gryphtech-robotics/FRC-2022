@@ -39,25 +39,27 @@ public class Robot extends TimedRobot {
         driverController = new Joystick(0);
         systemsController = new Joystick(1);
 
-        //23 is the flywheel angle
-        Flywheel.init(23);
-        Intake.init();
-        //104 is the target height
-        Limelight.init(104);
-        Drive.init(driverController);
         tx = (float) Limelight.tx.getDouble(0.0);
+
+        Flywheel.init(23);        //23 is the flywheel angle
+        Intake.init();
+        Limelight.init(104);        //104 is the target height
+        Drive.init(driverController);
         Angle.init();
+        Climber.init();
 
         SmartDashboard.setDefaultNumber("Launch Angle", 75);
         SmartDashboard.setDefaultNumber("Velocity Coefficient", 1.1);
-
-
-        Climber.init();
     }
 
     @Override
     public void autonomousInit(){
-        Auto.run();
+        Auto.init();
+    }
+
+    @Override
+    public void autonomousPeriodic() {
+         Auto.periodic();
     }
 
     @Override
@@ -65,16 +67,12 @@ public class Robot extends TimedRobot {
         tx = (float) Limelight.tx.getDouble(0.0);
         double velocityCoeffecient = LaunchMath.velocityCoeffecient(Limelight.distanceFromLimelightToGoalInches);
 
-
-        SmartDashboard.putNumber("tx", tx);
-        SmartDashboard.putNumber("Actual Velocity", Flywheel.flyWheel.getEncoder().getVelocity());
-
         Angle.checkLimitSwitch();
         Limelight.periodic();
         Drive.periodic();
         Angle.periodic();
 
-        // Intake1`
+        // Intake
         if (driverController.getRawButton(1)) {
             Intake.intake.set(0.75);
         } else if( driverController.getRawButton(1) && driverController.getRawButton(2)){
@@ -91,8 +89,6 @@ public class Robot extends TimedRobot {
             Flywheel.flyWheel.stopMotor();
         }
 
-        System.out.println(LaunchMath.mpsToRpm(LaunchMath.getVelocity(LaunchMath.inTom(Limelight.distance()), Math.toRadians(Angle.getAngle()))));
-
         // pneumatics
         if (systemsController.getRawButton(6)) {
             BallStopper.launch();
@@ -101,9 +97,8 @@ public class Robot extends TimedRobot {
         // Limelight Lock-on
         if (driverController.getRawButton(4) || driverController.getRawButton(11)) {
             Drive.goLoR(tx + tx/2);
-            System.out.println("hahahshwehwwi");
         } else if (systemsController.getRawButton(4) && Limelight.limeX == 0.0) {
-           Drive.stop();
+            Drive.stop();
         }
 
         //Angle
@@ -111,23 +106,11 @@ public class Robot extends TimedRobot {
             Angle.zeroLimitSwitch();
         }
 
-        
-
         if (((Angle.checkPosition() > 0) || (systemsController.getRawAxis(0) > 0)) && ((Angle.checkPosition() < 50) || (systemsController.getRawAxis(0) < 0))){
             Angle.setSpeed(systemsController.getRawAxis(0)*0.05);
         }else{
             Angle.setSpeed(0.0);
         }
-
-
-      /*  if (!systemsController.getRawButton(8)){
-            Angle.manualAngle = false;
-            Angle.setRotations(LaunchMath.angleToRotations(SmartDashboard.getNumber("Launch Angle", 75)));
-        }else{
-            Angle.manualAngle = true;
-        }
-   */
-        
 
         if (systemsController.getRawButton(1)){
             Angle.manualAngle = false;
@@ -135,7 +118,8 @@ public class Robot extends TimedRobot {
         }else{
             Angle.manualAngle = false;
         }
-    //climber
+    
+        //climber
         if (driverController.getRawButton(5)) {
             Climber.elevator.set(-0.5);
         }

@@ -4,9 +4,6 @@ import com.revrobotics.*;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Systems.Limelight;
-
 public class Flywheel {
     public static CANSparkMax flyWheel;
 

@@ -26,12 +26,12 @@ public class LaunchMath {
     }
     public static double Angle(double distance){
         double Angle = (6.7 * 500 / (0.5 * (distance + 136)) + 45.6);
-        SmartDashboard.putNumber("Angleee", Angle);
+        SmartDashboard.putNumber("Angle", Angle);
         return Angle;
     }
 
     public static double velocityCoeffecient(double distance) {
         // change 0.08 if shit's no worky
-        return (0.17/58) * distance + 0.667586206897 + 0.08;
+        return (0.17/58) * distance + 0.667586206897 + 0.06;
     }
 }
